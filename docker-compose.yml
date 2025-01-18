@@ -1,0 +1,56 @@
+services:
+
+  # Front-End configuration for the running application
+  # Exposed for all HTTP and HTTPS traffic, routed via port 8888
+  # ---------------
+  frontend:
+    build:
+      context: frontend/
+    depends_on:
+      - db
+    volumes:
+      - ./frontend/webroot:/var/www
+    env_file:
+      - ./frontend/secrets.txt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontends.entrypoints=websecure"
+      - "traefik.http.routers.frontends.tls=true"
+      - "traefik.http.routers.frontends.tls.certresolver=myresolver"
+      - "traefik.http.routers.frontends.tls.domains[0].main=bbs.cotbbs.org"
+      - "traefik.http.services.web.loadbalancer.server.port=8888"
+
+  # MySQL/Maria Database Configuration
+  # Ports 3306 Exposed for local traffic only
+  # -----------------
+  db:
+    image: mariadb:latest
+    env_file:
+      - ./db/secrets.txt
+    volumes:
+      - vol_db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  # Reverse Proxy to handle HTTP/HTTPS traffic.
+  # Port 8080 is exposed to show diag info.  See /proxy/config.toml for proxy config
+  # -----------------
+  proxy:
+    image: traefik:v3.3
+    depends_on:
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - cert_db:/shared/certs/
+      - ./proxy/config.toml:/etc/traefik/traefik.toml
+      - ./proxy/logs/:/shared/logs/
+
+# Mounts
+volumes:
+  vol_db:
+  cert_db:
