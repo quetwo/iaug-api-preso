@@ -8,10 +8,10 @@ ENV LUCEE_EXTENSIONS "D062D72F-F8A2-46F0-8CBC91325B2F067B;name=ORM;version=6.5.2
 RUN rm -R /var/www
 
 #----- Reset logs to go to the console
-#RUN ln -sf /dev/stdout /opt/lucee/web/logs/application.log && ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/application.log
-#RUN ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/out.log
-#RUN ln -sf /dev/stderr /opt/lucee/web/logs/exception.log && ln -sf /dev/stderr /opt/lucee/server/lucee-server/context/logs/exception.log
-#RUN ln -sf /dev/stdout /opt/lucee/web/logs/orm.log && ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/orm.log
+RUN ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/application.log && ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/out.log
+RUN ln -sf /dev/stdout /opt/lucee/server/lucee-server/context/logs/orm.log
+
+RUN ln -sf /dev/stderr /opt/lucee/server/lucee-server/context/exception.log
 
 #----- copy files into the context
 COPY ./webroot/ /var/www/
